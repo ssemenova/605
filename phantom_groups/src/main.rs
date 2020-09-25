@@ -50,4 +50,7 @@ fn main() {
 
     group_b.spawn(produce, vec![ch1_b_tx], vec![ch2_b_rx]);
     group_b.spawn(consume, vec![ch2_b_tx], vec![ch1_b_rx]);
+
+    group_a.wait();
+    group_b.wait();
 }

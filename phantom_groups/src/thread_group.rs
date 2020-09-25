@@ -49,6 +49,11 @@ impl<G: GroupTag> ThreadGroup<G>
         self.threads.push(join);
         ()
     }
+
+    pub fn wait(self) -> ()
+    {
+        self.threads.into_iter().for_each(|h| {let _ = h.join();})
+    }
 }
 
 
