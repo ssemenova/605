@@ -27,6 +27,32 @@ pub struct ThreadGroup<G: GroupTag> {
     marker: PhantomData<G>,
 }
 
+pub struct TaggedThread<G: GroupTag> {
+    thunk: Thunk,
+    sends: Vec<IntragroupSender<i32, G>>,
+    recvs: Vec<IntragroupReceiver<i32, G>>,
+    marker: PhantomData<G>,
+}
+
+impl<G: GroupTag> TaggedThread<G> {
+    pub fn new(f: Thunk) -> TaggedThread<G> 
+    where
+    Thunk: Send + 'static
+    {
+        TaggedThread { thunk: f, sends: vec![], recvs: vec![], marker: PhantomData }
+    }
+
+    fn add_send(mut self, sender: IntragroupSender<i32, G>) -> TaggedThread<G> {
+        self.sends.push(sender);
+        self
+    }
+
+    fn add_recv(mut self, receiver: IntragroupReceiver<i32, G>) -> TaggedThread<G> {
+        self.recvs.push(receiver);
+        self
+    }
+}
+
 impl<G: GroupTag> ThreadGroup<G> 
 {
     pub fn new() -> ThreadGroup<G> {
@@ -37,6 +63,15 @@ impl<G: GroupTag> ThreadGroup<G>
     {
         let (s, r) = channel ();
         (IntragroupSender { sender: s, marker: PhantomData }, IntragroupReceiver { receiver: r, marker: PhantomData })
+    }
+
+    pub fn link(&self, from: TaggedThread<G>, to: TaggedThread<G>) -> (TaggedThread<G>, TaggedThread<G>) {
+        let (s, r) = self.channel::<i32>();
+        (from.add_send(s), to.add_recv(r))
+    }
+
+    pub fn spawn_thread(&mut self, t: TaggedThread<G>) -> () {
+        self.spawn(t.thunk, t.sends, t.recvs)
     }
 
     pub fn spawn(&mut self, f: Thunk, senders: Vec<IntragroupSender<i32, G>>, receivers: Vec<IntragroupReceiver<i32, G>>) -> ()
