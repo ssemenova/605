@@ -2,6 +2,8 @@ use std::marker::PhantomData;
 use std::thread::{JoinHandle, spawn};
 use std::sync::mpsc::{Sender, Receiver, channel};
 
+type Thunk = fn(Vec<Sender<i32>>, Vec<Receiver<i32>>) -> ();
+
 pub trait GroupTag { }
 trait GroupMember<G: GroupTag> { }
 
@@ -37,10 +39,9 @@ impl<G: GroupTag> ThreadGroup<G>
         (IntragroupSender { sender: s, marker: PhantomData }, IntragroupReceiver { receiver: r, marker: PhantomData })
     }
 
-    pub fn spawn<F>(&mut self, f: F, senders: Vec<IntragroupSender<i32, G>>, receivers: Vec<IntragroupReceiver<i32, G>>) -> ()
+    pub fn spawn(&mut self, f: Thunk, senders: Vec<IntragroupSender<i32, G>>, receivers: Vec<IntragroupReceiver<i32, G>>) -> ()
     where
-        F: FnOnce(Vec<Sender<i32>>, Vec<Receiver<i32>>) -> (),
-        F: Send + 'static,
+        Thunk: Send + 'static,
     {
         // ...
         let s = senders.into_iter().map(move |e| e.sender).collect();

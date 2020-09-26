@@ -45,12 +45,23 @@ fn main() {
     let (ch1_b_tx, ch1_b_rx) = group_b.channel::<i32>();
     let (ch2_b_tx, ch2_b_rx) = group_b.channel::<i32>();
 
+    let (ch3_a_tx, ch3_a_rx) = group_a.channel::<i32>();
+    let (ch3_b_tx, ch3_b_rx) = group_b.channel::<i32>();
+
     group_a.spawn(produce, vec![ch1_a_tx], vec![ch2_a_rx]);
     group_a.spawn(consume, vec![ch2_a_tx], vec![ch1_a_rx]);
 
     group_b.spawn(produce, vec![ch1_b_tx], vec![ch2_b_rx]);
     group_b.spawn(consume, vec![ch2_b_tx], vec![ch1_b_rx]);
 
+    // group_b.spawn(produce, vec![ch3_a_tx], vec![]);
+
+    let mut x = 5;
+    let bad_closure = |s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>| { x += 1 };
+    let good_closure = |s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>| { let mut y = 0; y += 1 };
+    group_b.spawn(good_closure, vec![ch3_b_tx], vec![ch3_b_rx]);
+
     group_a.wait();
     group_b.wait();
+
 }
