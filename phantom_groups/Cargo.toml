@@ -14,17 +14,4 @@ bench = false
 [dependencies]
 frunk = "0.3.1"
 lazy_static = "1.4.0"
-
-
-# Examples
-[[example]]
-name = "atomic"
-path = "Examples/global_state/atomic.rs"
-[[example]]
-name = "lazy_static_mutex"
-path = "Examples/global_state/lazy_static_mutex.rs"
-
-
-[[example]]
-name = "simple"
-path = "Examples/simple.rs"
+once_cell = "1.4.0"
