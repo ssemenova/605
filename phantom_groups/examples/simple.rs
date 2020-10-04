@@ -35,36 +35,19 @@ fn consume(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
     }
 }
 
-// use global::Global;
-// static GLOBALMUT: Global<Arc<Mutex<i32>> = Global::new();
-// static 
-
-use std::sync::atomic::{AtomicUsize, Ordering};
-static COUNT: AtomicUsize = AtomicUsize::new(0);
-
-fn isolation_breaker(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
-
-    let _ = (s, r);
-
-    loop {
-        COUNT.fetch_add(1, Ordering::SeqCst);
-        sleep(Duration::from_secs(1));
-    }
-}
-
 fn main() {
 
+    // Create groups
     let mut group_a = ThreadGroup::<GroupA>::new();
     let mut group_b = ThreadGroup::<GroupB>::new();
 
+    // Create channels 
     let (ch1_a_tx, ch1_a_rx) = group_a.channel::<i32>();
     let (ch2_a_tx, ch2_a_rx) = group_a.channel::<i32>();
 
-    // let (ch3_a_tx, ch3_a_rx) = group_a.channel::<i32>();
-
+    // Spawn threads
     group_a.spawn(produce, vec![ch1_a_tx], vec![ch2_a_rx]);
     group_a.spawn(consume, vec![ch2_a_tx], vec![ch1_a_rx]);
-
 
     let t1 = TaggedThread::new(produce);
     let t2 = TaggedThread::new(consume);
@@ -74,9 +57,6 @@ fn main() {
     group_b.spawn_thread(t1);
     group_b.spawn_thread(t2);
     
-
-    group_a.spawn(isolation_breaker, vec![], vec![]);
-
     // group_b.spawn(produce, vec![ch3_a_tx], vec![]);
 
     // let mut x = 5;

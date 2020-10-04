@@ -6,6 +6,25 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[lib]
+crate-type = ["lib"]
+path = "src/thread_group.rs"
+bench = false
 
+[dependencies]
 frunk = "0.3.1"
+lazy_static = "1.4.0"
+
+
+# Examples
+[[example]]
+name = "atomic"
+path = "Examples/global_state/atomic.rs"
+[[example]]
+name = "lazy_static_mutex"
+path = "Examples/global_state/lazy_static_mutex.rs"
+
+
+[[example]]
+name = "simple"
+path = "Examples/simple.rs"
