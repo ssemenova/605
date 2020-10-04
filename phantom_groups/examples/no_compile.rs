@@ -18,8 +18,8 @@ impl GroupTag for GroupB { }
 
 
 fn main() {
-    intergroup_messages_with_linking();
     intergroup_messages_default();
+    intergroup_messages_with_linking();
 }
 
 
