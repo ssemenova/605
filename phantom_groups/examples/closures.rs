@@ -46,6 +46,6 @@ fn bad_closure() {
             expected fn pointer `fn(std::vec::Vec<std::sync::mpsc::Sender<i32>>, std::vec::Vec<std::sync::mpsc::Receiver<i32>>)`
             found closure `[closure@examples/closures.rs:39:23: 39:78 x:_]`
     */
-    // let group_a_t1 = TaggedThread::new(bad_closure);
-    // group_a.spawn_thread(group_a_t1);
+    // let group_a_t1 = TaggedThread::new(_bad_closure);
+    // _group_a.spawn_thread(group_a_t1);
 }
