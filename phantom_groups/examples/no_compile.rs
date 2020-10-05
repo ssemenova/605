@@ -73,7 +73,7 @@ fn intergroup_messages_with_linking() {
             expected struct `phantom_groups::TaggedThread<GroupB>`
             found struct `phantom_groups::TaggedThread<GroupA>`
     */
-    // group_b.spawn_thread(group_b_t2);
+    // _group_b.spawn_thread(group_b_t2);
 }
 
 
