@@ -1,4 +1,4 @@
-use std::alloc::{GlobalAlloc, Layout, alloc};
+use std::alloc::{GlobalAlloc, Layout};
 use std::ptr::null_mut;
 use std::alloc::System;
 use std::sync::atomic::{AtomicUsize, Ordering};
