@@ -5,7 +5,7 @@ by two threads in two different groups.
 */
 extern crate phantom_groups;
 
-use crate::phantom_groups::{GroupTag, ThreadGroup};
+use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;

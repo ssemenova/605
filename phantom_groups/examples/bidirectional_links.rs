@@ -4,7 +4,7 @@ Uses mostly the same setup as simple_with_links.
 */
 extern crate phantom_groups;
 
-use crate::phantom_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;

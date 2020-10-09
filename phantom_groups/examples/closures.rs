@@ -3,7 +3,7 @@ An example of passing acceptable and unnacceptable closures to TaggedThreads.
 */
 extern crate phantom_groups;
 
-use crate::phantom_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 
