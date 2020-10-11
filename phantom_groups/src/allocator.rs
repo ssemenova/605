@@ -7,13 +7,17 @@ use std::sync::Mutex;
 use std::collections::HashMap;
 
 const DEFAULT_BOUND: usize = 4096;
+const THREAD_LIMIT: usize = 10;
+
 
 pub static POOLS_VALID: std::sync::atomic::AtomicBool = AtomicBool::new(false);
 
 lazy_static! {
     static ref PRIMORDIAL_TID: ThreadId = current().id();
     static ref POOLS: Mutex<HashMap<ThreadId, (AtomicUsize, usize)>> = {
-        let pools = Mutex::new(HashMap::new());
+        let mut map = HashMap::new();
+        map.reserve(THREAD_LIMIT);
+        let pools = Mutex::new(map);
         pools
     };
 }
@@ -88,7 +92,6 @@ unsafe impl GlobalAlloc for BoundedAllocator {
     }
 
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
-
         if !POOLS_VALID.load(Ordering::SeqCst) {
             System.dealloc(_ptr, _layout)
         } else if current().id() == *PRIMORDIAL_TID {
