@@ -82,7 +82,7 @@ impl<G: GroupTag> ThreadGroup<G>
         // ...
         let s = senders.into_iter().map(move |e| e.sender).collect();
         let r = receivers.into_iter().map(move |e| e.receiver).collect();
-        let join = spawn(move || { set_group(0x41); let ret = f(s, r); die(); ret });
+        let join = spawn(move || { set_group(G::get_tag()); let ret = f(s, r); die(); ret });
         self.threads.push(join);
         ()
     }
