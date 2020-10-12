@@ -1,12 +1,8 @@
 extern crate phantom_groups;
 
-use phantom_groups::thread_groups::GroupTag;
-use crate::phantom_groups::allocator::{BoundedAllocator, add_bound, get_allocated, POOLS_VALID, get_bound, PRIMORDIAL_TID};
-
-use std::sync::atomic::{Ordering};
-use std::thread::{park, current};
-use std::panic;
-
+use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup};
+use crate::phantom_groups::allocator::{BoundedAllocator, add_bound, get_allocated, die, get_bound};
+use std::sync::mpsc::{Sender, Receiver};
 
 #[global_allocator]
 static A: BoundedAllocator = BoundedAllocator::new();
@@ -16,29 +12,20 @@ impl GroupTag for GroupA {
     fn get_tag() -> u64 { 0x41 }
 }
 
-fn work() {
-    println!("line 14");
-
-    POOLS_VALID.store(true, Ordering::SeqCst);
-    let id = current().id();
-    add_bound(id, 256);
+fn work(_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>) {
+    let id = GroupA::get_tag();
     let mut v: Vec<i32> = vec![];
-    for i in 1..128 {
+    for i in 1..256 {
         v.push(i);
         println!("{}: Using {}/{} bytes", i, get_allocated(id), get_bound(id));
     }
-    POOLS_VALID.store(false, Ordering::SeqCst);
 }
 
 fn main() {
-
-    // panic::set_hook(Box::new(|i| { println!("{:#?}", i) }));
-    
-
-    let id = *PRIMORDIAL_TID;
-    add_bound(id, 16384);
-
-    std::thread::spawn(work).join();
+    add_bound(GroupA::get_tag(), 2048);
+    let mut group_a = ThreadGroup::<GroupA>::new();
+    group_a.spawn(work, vec![], vec![]);
+    group_a.wait();
     println!("Main thread exiting cleanly!");
-    POOLS_VALID.store(false, Ordering::SeqCst);
+    die();
 }

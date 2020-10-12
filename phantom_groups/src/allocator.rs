@@ -1,25 +1,24 @@
 use std::alloc::{GlobalAlloc, Layout};
 use std::alloc::System;
 use std::sync::atomic::{AtomicUsize, AtomicBool, Ordering};
-use std::thread::{current, panicking, ThreadId};
+use std::thread::panicking;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::collections::HashMap;
-use std::panic;
 use std::cell::Cell;
 
 const DEFAULT_BOUND: usize = 4096;
-const THREAD_LIMIT: usize = 10;
+const GROUP_LIMIT: usize = 10;
 
 
 pub static POOLS_VALID: std::sync::atomic::AtomicBool = AtomicBool::new(false);
 
 lazy_static! {
-    pub static ref PRIMORDIAL_TID: ThreadId = current().id();
-    static ref POOLS: Mutex<HashMap<ThreadId, (AtomicUsize, usize)>> = {
+    static ref POOLS: Mutex<HashMap<u64, (AtomicUsize, usize)>> = {
         let mut map = HashMap::new();
-        map.reserve(THREAD_LIMIT);
+        map.reserve(GROUP_LIMIT);
         let pools = Mutex::new(map);
+        POOLS_VALID.store(true, Ordering::SeqCst);
         pools
     };
 }
@@ -56,22 +55,22 @@ impl BoundedAllocator {
     }
 }
 
-pub fn add_bound(id: ThreadId, bound: usize) {
+pub fn add_bound(id: u64, bound: usize) {
     let mut locked_pool = POOLS.lock().expect("Mutex failed");
     let a = AtomicUsize::new(0);
     locked_pool.insert(id, (a, bound));
 }
 
-pub fn get_allocated(id: ThreadId) -> usize {
+pub fn get_allocated(id: u64) -> usize {
     let locked_pool = POOLS.lock().expect("Mutex failed");
     let entry = locked_pool.get(&id);
     match entry {
-        Some((atomic, _)) => atomic.fetch_add(0, Ordering::SeqCst),
+        Some((atomic, _)) => atomic.load(Ordering::SeqCst),
         None => 0
     }
 }
 
-pub fn get_bound(id: ThreadId) -> usize {
+pub fn get_bound(id: u64) -> usize {
     let locked_pool = POOLS.lock().expect("Mutex failed");
     let entry = locked_pool.get(&id);
     match entry {
@@ -83,29 +82,17 @@ pub fn get_bound(id: ThreadId) -> usize {
 unsafe impl GlobalAlloc for BoundedAllocator {
     
     unsafe fn alloc(&self, _layout: Layout) -> *mut u8 {
-        // return System.alloc(_layout);
         if !POOLS_VALID.load(Ordering::SeqCst) {
             System.alloc(_layout)
-        } else if panicking() || IS_OOM.with(|x| {x.get()}) {
+        } else if panicking() {
            System.alloc(_layout)
         } else {
-            // let id = panic::catch_unwind(|| { current().id() });
-            let id: Result<ThreadId, ()> = Ok( current().id() );
-            let bypass = id.is_err() || id.unwrap() == *PRIMORDIAL_TID;
             
-            if bypass {
-                // print!("P: {:?}", current().id());
-                System.alloc(_layout)
-            } else {
-                let id = current().id();
-                // print!("C: {:?}", id);
-
-                let result = {
-
+            match get_group() {
+                None => System.alloc(_layout),
+                Some(id) => {
                     let mut locked_pool = POOLS.lock().expect("Mutex failed");
-
                     let entry = locked_pool.get(&id);
-
                     let (total_alloc, bound) = match entry {
                         Some((a, b)) => (a, *b),
                         None => {
@@ -126,45 +113,38 @@ unsafe impl GlobalAlloc for BoundedAllocator {
                     } else {
                         Some(System.alloc(_layout))
                     }
-                };
-
-                result.expect("Thread out of memory")
+                }.expect("Thread out of memory")
             }
         }
     }
 
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
-        // println!("{:#x?}", _ptr);
         if !POOLS_VALID.load(Ordering::SeqCst) {
             System.dealloc(_ptr, _layout)
-        } else if panicking() || IS_OOM.with(|x| {x.get()}) {
+        } else if panicking() {
             System.dealloc(_ptr, _layout)
         } else { 
-            // let id = panic::catch_unwind(|| { current().id() });
-            let id: Result<ThreadId, ()> = Ok( current().id() );
-            let bypass = id.is_err() || id.unwrap() == *PRIMORDIAL_TID;
-            
-            if bypass {
-                System.dealloc(_ptr, _layout)
-            } else {
-                let id = current().id();
-                let mut locked_pool = POOLS.lock().expect("Mutex failed");
-                let entry = locked_pool.get(&id);
-                let (total_alloc, _) = match entry {
-                    Some((a, b)) => (a, *b),
-                    None => {
-                        // Uh, what?
-                        // Init with size so it ends up at zero
-                        let a = AtomicUsize::new(_layout.size());
-                        let b = DEFAULT_BOUND;
-                        locked_pool.insert(id, (a,b));
-                        let (a, b) = locked_pool.get(&id).unwrap();
-                        (a, *b)
-                    }
-                };
+            match get_group() {
+                None => System.dealloc(_ptr, _layout),
+                Some(id) => {
+                    let mut locked_pool = POOLS.lock().expect("Mutex failed");
+                    let entry = locked_pool.get(&id);
+                    let (total_alloc, _) = match entry {
+                        Some((a, b)) => (a, *b),
+                        None => {
+                            // Uh, what?
+                            // Init with size so it ends up at zero
+                            let a = AtomicUsize::new(_layout.size());
+                            let b = DEFAULT_BOUND;
+                            locked_pool.insert(id, (a,b));
+                            let (a, b) = locked_pool.get(&id).unwrap();
+                            (a, *b)
+                        }
+                    };
 
-                total_alloc.fetch_sub(_layout.size(), Ordering::SeqCst);
-                System.dealloc(_ptr, _layout)
+                    total_alloc.fetch_sub(_layout.size(), Ordering::SeqCst);
+                    System.dealloc(_ptr, _layout)
+                }
             }
         }
     }
