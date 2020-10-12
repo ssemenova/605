@@ -1,10 +1,11 @@
 use std::marker::PhantomData;
 use std::thread::{JoinHandle, spawn};
 use std::sync::mpsc::{Sender, Receiver, channel};
+use crate::allocator::{set_group, die};
 
 type Thunk = fn(Vec<Sender<i32>>, Vec<Receiver<i32>>) -> ();
 
-pub trait GroupTag { }
+pub trait GroupTag { fn get_tag() -> u64; }
 trait GroupMember<G: GroupTag> { }
 
 #[derive(Clone)]
@@ -81,6 +82,7 @@ impl<G: GroupTag> ThreadGroup<G>
         // ...
         let s = senders.into_iter().map(move |e| e.sender).collect();
         let r = receivers.into_iter().map(move |e| e.receiver).collect();
+        // let join = spawn(move || { set_group(G::get_tag()); let ret = f(s, r); die(); ret });
         let join = spawn(move || { f(s, r) });
         self.threads.push(join);
         ()
