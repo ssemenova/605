@@ -4,9 +4,9 @@ alternative to mpsc channels. Rather than creating an mpsc channel between
 two threads, each thread is wrapped with a ThreadGroup object, then linked
 to another thread. Each link creates a channel under-the-hood.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;

@@ -1,5 +1,5 @@
 [package]
-name = "phantom_groups"
+name = "anodize"
 version = "0.1.0"
 authors = ["Grant Iraci <grantira@buffalo.edu>"]
 edition = "2018"

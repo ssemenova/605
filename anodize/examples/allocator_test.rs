@@ -1,7 +1,7 @@
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup};
-use crate::phantom_groups::allocator::{BoundedAllocator, add_bound, get_allocated, die, get_bound};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup};
+use crate::anodize::allocator::{BoundedAllocator, add_bound, get_allocated, die, get_bound};
 use std::sync::mpsc::{Sender, Receiver};
 
 #[global_allocator]

@@ -2,9 +2,9 @@
 Example of bi-directional links between threads in one thread group.
 Uses mostly the same setup as simple_with_links.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;

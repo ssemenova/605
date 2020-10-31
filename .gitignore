@@ -2,4 +2,4 @@ MemoryIsolation/Cargo.lock
 MemoryIsolation/main
 MemoryIsolation/target/
 
-*/target
+**/target

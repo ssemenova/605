@@ -1,19 +1,18 @@
 /*
 Example of breaking our code with global mutexes.
-Global mutex is created inside a lazy_static macro and can be accessed
+Global mutex is created inside a once_cell object and can be accessed
 between two threads in different thread groups.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;
 use std::time::Duration;
 use std::sync::Mutex;
 
-use lazy_static::lazy_static;
-
+use once_cell::sync::Lazy;
 
 struct GroupA;
 impl GroupTag for GroupA { }
@@ -22,10 +21,10 @@ struct GroupB;
 impl GroupTag for GroupB { }
 
 
-static GLOBAL_INT: i32 = 0;
-lazy_static! {
-    static ref GLOBAL_MUT: Mutex<i32> = Mutex::new(GLOBAL_INT);
-}
+static GLOBAL_MUT: Lazy<Mutex<i32>> = Lazy::new(|| {
+    let mut count: i32 = 0;
+    Mutex::new(count)
+});
 
 
 fn main() {

@@ -1,9 +1,9 @@
 /*
 Commented-out examples of code that breaks the library and is checked at compile time.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;
@@ -40,8 +40,8 @@ fn intergroup_messages_default() {
         Attempting to spawn t2 within group B with a receiver tied to group A
         will give a compile-time error.
             mismatched types
-            expected struct `phantom_groups::IntragroupReceiver<_, GroupB>`
-            found struct `phantom_groups::IntragroupReceiver<_, GroupA>`
+            expected struct `anodize::IntragroupReceiver<_, GroupB>`
+            found struct `anodize::IntragroupReceiver<_, GroupA>`
     */
     // _group_b.spawn(consume, vec![], vec![_receiver]);
 }
@@ -70,8 +70,8 @@ fn intergroup_messages_with_linking() {
     /*
         Attempting to spawn t2 within group B will give a compile-time error.
             mismatched types
-            expected struct `phantom_groups::TaggedThread<GroupB>`
-            found struct `phantom_groups::TaggedThread<GroupA>`
+            expected struct `anodize::TaggedThread<GroupB>`
+            found struct `anodize::TaggedThread<GroupA>`
     */
     // _group_b.spawn_thread(group_b_t2);
 }

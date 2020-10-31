@@ -3,9 +3,9 @@ Example of breaking our code with global state.
 A global AtomicUSize is created and can be accessed/incremented 
 by two threads in two different groups.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;

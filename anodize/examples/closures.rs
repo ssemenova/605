@@ -1,9 +1,9 @@
 /*
 An example of passing acceptable and unnacceptable closures to TaggedThreads.
 */
-extern crate phantom_groups;
+extern crate anodize;
 
-use crate::phantom_groups::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
 use std::sync::mpsc::{Sender, Receiver};
 
