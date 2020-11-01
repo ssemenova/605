@@ -4,7 +4,7 @@
 
 //! Helper functions to manipulate inverse depth data from depth images.
 
-use crate::misc::type_aliases::Float;
+use visodom::misc::type_aliases::Float;
 
 /// An inverse depth can be one of three values: unknown, discarded, or known with a given
 /// variance.

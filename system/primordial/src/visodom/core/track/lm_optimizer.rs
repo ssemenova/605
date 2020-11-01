@@ -7,10 +7,10 @@
 
 use nalgebra::{DMatrix, UnitQuaternion};
 
-use crate::core::camera::Intrinsics;
-use crate::math::optimizer::{self, Continue};
-use crate::math::se3;
-use crate::misc::type_aliases::{Float, Iso3, Mat6, Point2, Vec6};
+use visodom::core::camera::Intrinsics;
+use visodom::math::optimizer::{self, Continue};
+use visodom::math::se3;
+use visodom::misc::type_aliases::{Float, Iso3, Mat6, Point2, Vec6};
 
 /// State of the Levenberg-Marquardt optimizer.
 pub struct LMOptimizerState {

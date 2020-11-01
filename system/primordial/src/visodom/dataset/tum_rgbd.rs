@@ -7,8 +7,8 @@
 use nalgebra as na;
 use std::path::PathBuf;
 
-use crate::core::camera::Intrinsics;
-use crate::misc::type_aliases::{Float, Iso3};
+use visodom::core::camera::Intrinsics;
+use visodom::misc::type_aliases::{Float, Iso3};
 
 /// U16 depth values are scaled for better precision.
 /// So 5000 in the 16 bits gray png corresponds to 1 meter.

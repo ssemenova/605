@@ -13,8 +13,8 @@
 use nalgebra::{Quaternion, Translation3, UnitQuaternion};
 use std::f32::consts::PI;
 
-use crate::math::so3;
-use crate::misc::type_aliases::{Float, Iso3, Mat3, Mat4, Vec3, Vec6};
+use visodom::math::so3;
+use visodom::misc::type_aliases::{Float, Iso3, Mat3, Mat4, Vec3, Vec6};
 
 const EPSILON_TAYLOR_SERIES: Float = 1e-2;
 const EPSILON_TAYLOR_SERIES_2: Float = EPSILON_TAYLOR_SERIES * EPSILON_TAYLOR_SERIES;

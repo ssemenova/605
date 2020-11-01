@@ -6,8 +6,8 @@
 
 use nalgebra::Affine2;
 
-use crate::core::multires;
-use crate::misc::type_aliases::{Float, Iso3, Mat3, Point2, Point3, Vec3};
+use visodom::core::multires;
+use visodom::misc::type_aliases::{Float, Iso3, Mat3, Point2, Point3, Vec3};
 
 /// A camera has intrinsic and extrinsic parameters.
 /// Warning: extrinsics here is the pose of the camera,

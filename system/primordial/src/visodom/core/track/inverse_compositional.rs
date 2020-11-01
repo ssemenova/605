@@ -11,7 +11,7 @@
 use itertools::izip;
 use nalgebra::DMatrix;
 
-use crate::core::{
+use visodom::core::{
     camera::Intrinsics,
     candidates::coarse_to_fine as candidates,
     gradient,
@@ -19,9 +19,9 @@ use crate::core::{
     multires,
     track::lm_optimizer::{self, LMOptimizerState},
 };
-use crate::math::optimizer::State as _;
-use crate::misc::helper;
-use crate::misc::type_aliases::{Float, Iso3, Mat6, Point2, Vec6};
+use visodom::math::optimizer::State as _;
+use visodom::misc::helper;
+use visodom::misc::type_aliases::{Float, Iso3, Mat6, Point2, Vec6};
 
 /// Type alias to easily spot vectors that are indexed over multi-resolution levels.
 pub type Levels<T> = Vec<T>;
@@ -174,10 +174,12 @@ impl Tracker {
         img_time: f64,
         img: DMatrix<u8>,
     ) {
+
         let mut lm_model = self.state.current_frame_pose.inverse() * self.state.keyframe_pose;
         let img_multires = multires::mean_pyramid(self.config.nb_levels, img);
         let keyframe_data = &self.state.keyframe_multires_data;
         let mut optimization_went_well = true;
+
         for lvl in (0..self.config.nb_levels).rev() {
             let obs = lm_optimizer::Obs {
                 intrinsics: &keyframe_data.intrinsics_multires[lvl],

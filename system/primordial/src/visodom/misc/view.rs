@@ -7,9 +7,9 @@
 use image::RgbImage;
 use nalgebra::DMatrix;
 
-use crate::core::inverse_depth::InverseDepth;
-use crate::misc::type_aliases::Float;
-use crate::misc::{colormap, interop};
+use visodom::core::inverse_depth::InverseDepth;
+use visodom::misc::type_aliases::Float;
+use visodom::misc::{colormap, interop};
 
 /// Creates an RGB image containing the gray image
 /// and candidates points overimposed in red.

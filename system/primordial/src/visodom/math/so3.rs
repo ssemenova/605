@@ -13,7 +13,7 @@
 use nalgebra::{Quaternion, UnitQuaternion};
 use std::f32::consts::PI;
 
-use crate::misc::type_aliases::{Float, Mat3, Vec3};
+use visodom::misc::type_aliases::{Float, Mat3, Vec3};
 
 /// Threshold for using Taylor series in computations.
 const EPSILON_TAYLOR_SERIES: Float = 1e-2;

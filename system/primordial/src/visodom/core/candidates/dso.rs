@@ -10,9 +10,9 @@ use num_traits::{self, cast::AsPrimitive, NumCast};
 use rand::Rng;
 use std::ops::{Add, Div, Mul};
 
-use crate::core::multires;
-use crate::misc::helper::div_rem;
-use crate::misc::type_aliases::Float;
+use visodom::core::multires;
+use visodom::misc::helper::div_rem;
+use visodom::misc::type_aliases::Float;
 
 /// Trait for manipulating numbers types.
 pub trait Number<T>:

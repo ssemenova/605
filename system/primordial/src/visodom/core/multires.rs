@@ -6,7 +6,7 @@
 
 use nalgebra::{DMatrix, Scalar};
 
-use crate::core::gradient;
+use visodom::core::gradient;
 
 /// Recursively generate a pyramid of matrices where each following level
 /// is half the previous resolution, computed with the mean of each 2x2 block.

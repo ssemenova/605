@@ -1,19 +1,16 @@
-extern crate visodom as vors;
-extern crate image;
-extern crate nalgebra;
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use nalgebra::DMatrix;
-use std::{env, error::Error, fs, io::BufReader, io::Read, path::Path, path::PathBuf};
+use std::{error::Error, fs, io::BufReader, io::Read, path::Path, path::PathBuf};
 
-use std::sync::mpsc::{Sender, Receiver};
+use visodom::core::camera::Intrinsics;
+use visodom::core::track::inverse_compositional as track;
+use visodom::dataset::tum_rgbd;
+use visodom::misc::{helper, interop};
 
-use vors::core::camera::Intrinsics;
-use vors::core::track::inverse_compositional as track;
-use vors::dataset::tum_rgbd;
-use vors::misc::{helper, interop};
-
-pub fn run(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
-    println!("here");
+pub fn run(args: &[String]) -> Result<(), Box<dyn Error>> {
     // Check that the arguments are correct.
     let valid_args = check_args(args)?;
 
@@ -37,6 +34,7 @@ pub fn run(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
 
     // Track every frame in the associations file.
     for assoc in associations.iter().skip(1) {
+
         // Load depth and color images.
         let (depth_map, img) = read_images(assoc)?;
 
@@ -48,10 +46,13 @@ pub fn run(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
             img,
         );
 
+
         // Print to stdout the frame pose.
         let (timestamp, pose) = tracker.current_frame();
         println!("{}", (tum_rgbd::Frame { timestamp, pose }).to_string());
     }
+
+    Ok(())
 }
 
 struct Args {
@@ -60,8 +61,9 @@ struct Args {
 }
 
 /// Verify that command line arguments are correct.
-fn create_args(args: &[String]) -> Result<Args, String> {
-    if let [_, camera_id, associations_file_path_str] = args {
+fn check_args(args: &[String]) -> Result<Args, String> {
+    eprintln!("{:?}", args);
+    if let [camera_id, associations_file_path_str] = args {
         let intrinsics = create_camera(camera_id)?;
         let associations_file_path = PathBuf::from(associations_file_path_str);
         if associations_file_path.is_file() {
@@ -96,7 +98,7 @@ fn create_camera(camera_id: &str) -> Result<Intrinsics, String> {
 /// Open an association file and parse it into a vector of Association.
 fn parse_associations<P: AsRef<Path>>(
     file_path: P,
-) -> Result<Vec<tum_rgbd::Association>, Box<Error>> {
+) -> Result<Vec<tum_rgbd::Association>, Box<dyn Error>> {
     let file = fs::File::open(&file_path)?;
     let mut file_reader = BufReader::new(file);
     let mut content = String::new();
@@ -121,7 +123,7 @@ fn abs_path<P: AsRef<Path>>(file_path: P, assoc: &tum_rgbd::Association) -> tum_
 }
 
 /// Read a depth and color image given by an association.
-fn read_images(assoc: &tum_rgbd::Association) -> Result<(DMatrix<u16>, DMatrix<u8>), Box<Error>> {
+fn read_images(assoc: &tum_rgbd::Association) -> Result<(DMatrix<u16>, DMatrix<u8>), Box<dyn Error>> {
     let (w, h, depth_map_vec_u16) = helper::read_png_16bits(&assoc.depth_file_path)?;
     let depth_map = DMatrix::from_row_slice(h, w, depth_map_vec_u16.as_slice());
     let img = interop::matrix_from_image(image::open(&assoc.color_file_path)?.to_luma());
