@@ -16,16 +16,15 @@ use crate::anodize::allocator::{BoundedAllocator, add_bound};
 use serde::{Serialize, Deserialize};
 
 use std::sync::mpsc::{Sender, Receiver};
+use std::{path::Path, fs::File};
 
 pub mod visodom;
 
 #[global_allocator]
 static A: BoundedAllocator = BoundedAllocator::new();
 
-
 #[derive(Serialize, Deserialize)]
 struct VisOdomSettings {
-    version: String,
     freiberg_type: String,
     path_to_associations: String,
 }
@@ -43,13 +42,13 @@ fn main() {
 }
 
 fn run_visodom(_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>) {
-    // Code to read config from json file
-    // Might need later ... don't want to mess with what we have working now
-    // let json_file_path = Path::new("../config.json");
-    // let json_file = File::open(json_file_path).expect("config file not found");
-    // let settings: VisOdomSettings =
-    //     serde_json::from_reader(json_file).expect("error while reading json");
-    let args = [String::from("fr1"), String::from("/Users/sofiya/rgbd_dataset_freiburg1_desk2/associations.txt")];
+    let json_file_path = Path::new("config.json");
+    let json_file = File::open(json_file_path).expect("config file not found");
+    let settings: VisOdomSettings =
+        serde_json::from_reader(json_file).expect("error while reading config file");
+    let args = [settings.freiberg_type, settings.path_to_associations];
+
+    println!("Visual odometry thread starting");
 
     let result = visodom::visodom_entrypoint::run(&args);
     match result {

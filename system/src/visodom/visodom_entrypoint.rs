@@ -62,7 +62,6 @@ struct Args {
 
 /// Verify that command line arguments are correct.
 fn check_args(args: &[String]) -> Result<Args, String> {
-    eprintln!("{:?}", args);
     if let [camera_id, associations_file_path_str] = args {
         let intrinsics = create_camera(camera_id)?;
         let associations_file_path = PathBuf::from(associations_file_path_str);

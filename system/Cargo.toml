@@ -6,7 +6,7 @@ authors = ["Sofiya Semenova <novasofiya@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anodize = { path = "../../anodize" }
+anodize = { path = "../anodize" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 image = "0.19" # Encoding/decoding images in Rust.
