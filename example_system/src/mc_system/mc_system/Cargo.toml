@@ -1,0 +1,31 @@
+[package]
+name = "mc_system"
+version = "0.1.0"
+authors = ["Sofiya Semenova <novasofiya@gmail.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "rclrs_publisher"
+path = "src/rclrs_publisher.rs"
+
+[[bin]]
+name = "rclrs_subscriber"
+path = "src/rclrs_subscriber.rs"
+
+[[bin]]
+name = "mc_system"
+path = "src/main.rs"
+
+[dependencies]
+anodize = { path = "/home/rusty/GITrepo/605/anodize" }
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+image = "0.19" # Encoding/decoding images in Rust.
+png = "0.12"
+byteorder = "1.2" # Reading numbers in [big/little]-endian.
+nalgebra = "0.17" # Linear algebra.
+rand = "0.6" # Random number generators.
+num-traits = "0.2" # Useful numeric traits.
+nom = "4.2" # Parsing files.
+itertools = "0.7" # More iterators.

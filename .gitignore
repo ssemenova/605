@@ -3,3 +3,7 @@ MemoryIsolation/main
 MemoryIsolation/target/
 
 **/target
+
+example_system/build/
+example_system/install/
+example_system/log/
