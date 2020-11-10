@@ -35,6 +35,9 @@ colcon build --symlink-install --cmake-args "-DCMAKE_SHARED_LINKER_FLAGS='-latom
 
 ### ROS2 <-> Rust bindings
 
+We use [ros2_rust](https://github.com/ros2-rust/ros2_rust) to bind Rust code to ROS2 C++ code.
+
+
 
 ### Dataset
 The visual odometry portion relies on an RGBD SLAM dataset. You can download the [TUM datasets here](https://vision.in.tum.de/data/datasets/rgbd-dataset/download) or use your own. Regardless of what dataset you choose, you'll need to provide an *associations file*. The TUM datasets do not provide their own associations file, so you will need to convert their dataset.
