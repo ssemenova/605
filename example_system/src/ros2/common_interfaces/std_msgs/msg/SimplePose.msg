@@ -1,0 +1,7 @@
+float64 point_x
+float64 point_y
+float64 point_z
+float64 quaternion_x
+float64 quaternion_y
+float64 quaternion_z
+float64 quaternion_w

@@ -1,0 +1,35 @@
+[package]
+name = "gear"
+version = "0.6.0"
+authors = ["Takashi Ogura <t.ogura@gmail.com>"]
+description = "Collision avoidance path planning for robotics"
+license = "Apache-2.0"
+keywords = ["pathplanning", "robotics"]
+categories = ["algorithms"]
+repository = "https://github.com/OTL/gear"
+documentation = "http://docs.rs/gear"
+readme = "README.md"
+edition="2018"
+
+[features]
+default = ["use-assimp"]
+use-assimp = [ "assimp" ]
+
+[dependencies]
+thiserror = "1.0"
+k = "0.18"
+log = "0.4"
+nalgebra = "0.21"
+ncollide3d = "0.23"
+rand = "0.3.0"
+rrt = "0.4.0"
+urdf-rs = "0.4"
+trajectory = "0.0.1"
+num-traits = "0.2"
+assimp = { version = "0.3", optional = true }
+
+[dev-dependencies]
+env_logger = "0.7"
+structopt = "0.3"
+kiss3d = "0.24"
+urdf-viz = "0.18"

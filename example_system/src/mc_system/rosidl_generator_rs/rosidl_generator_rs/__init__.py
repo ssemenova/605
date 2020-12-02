@@ -254,7 +254,7 @@ def get_builtin_rs_type(type_, package_name=None):
     elif isinstance(type_, AbstractGenericString):
         return 'std::string::String'
     elif isinstance(type_, Array):
-        return '[{}, {}]'.format(get_rs_type(type_.value_type), 32 if type_.size <= 32 else 32)
+        return '[{}; {}]'.format(get_rs_type(type_.value_type), 32 if type_.size <= 32 else 32)
     elif isinstance(type_, AbstractSequence):
         return 'Vec<{}>'.format(get_rs_type(type_.value_type))
 

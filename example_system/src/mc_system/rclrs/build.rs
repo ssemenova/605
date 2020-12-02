@@ -19,6 +19,9 @@ fn main() {
         }
     }
 
+    builder = builder.clang_arg(format!("-I{}/include", "/home/rusty/GITrepo/605/example_system/install/tutorial_interfaces"));
+    println!("cargo:rustc-link-search=native={}/lib", "/home/rusty/GITrepo/605/example_system/install/tutorial_interfaces");
+
     println!("cargo:rustc-link-lib=dylib=rcl");
     println!("cargo:rustc-link-lib=dylib=rcutils");
     println!("cargo:rustc-link-lib=dylib=rmw");

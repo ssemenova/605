@@ -6,19 +6,12 @@ authors = ["Sofiya Semenova <novasofiya@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "rclrs_publisher"
-path = "src/rclrs_publisher.rs"
-
-[[bin]]
-name = "rclrs_subscriber"
-path = "src/rclrs_subscriber.rs"
-
-[[bin]]
 name = "mc_system"
 path = "src/main.rs"
 
 [dependencies]
 anodize = { path = "/home/rusty/GITrepo/605/anodize" }
+gear = { path = "/home/rusty/GITrepo/605/example_system/src/mc_system/gear" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 image = "0.19" # Encoding/decoding images in Rust.
@@ -29,3 +22,12 @@ rand = "0.6" # Random number generators.
 num-traits = "0.2" # Useful numeric traits.
 nom = "4.2" # Parsing files.
 itertools = "0.7" # More iterators.
+thiserror = "1.0"
+k = "0.18"
+log = "0.4"
+ncollide3d = "0.23"
+rrt = "0.4.0"
+urdf-rs = "0.4"
+trajectory = "0.0.1"
+assimp = { version = "0.3", optional = true }
+device_query = "0.1.0"

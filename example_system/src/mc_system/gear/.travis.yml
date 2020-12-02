@@ -1,0 +1,21 @@
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+os:
+  - linux
+  - osx
+cache: cargo
+env:
+  global:
+    - RUST_BACKTRACE=1
+matrix:
+  fast_finish: true
+  allow_failures:
+    - rust: nightly
+addons:
+  apt:
+    packages:
+      - xorg-dev
+      - libglu1-mesa-dev

@@ -45,6 +45,8 @@ set(msg_files
   "msg/UInt64MultiArray.msg"
   "msg/UInt8.msg"
   "msg/UInt8MultiArray.msg"
+  "msg/SimpleTwist.msg"
+  "msg/SimplePose.msg"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}

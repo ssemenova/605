@@ -7,6 +7,7 @@ install/mc_system/lib/mc_system/mc_system:
 	colcon build
 	
 run: install/mc_system/lib/mc_system/mc_system
+	source install/setup.bash
 	ros2 run mc_system mc_system
 
 clean_rust_fast:

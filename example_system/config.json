@@ -1,4 +1,10 @@
 {
     "freiberg_type": "fr1",
-    "path_to_associations": "/home/rusty/rgbd_dataset_freiburg1_desk2/associations.txt"
+    "path_to_associations": "/home/rusty/rgbd_dataset_freiburg1_desk2/associations.txt",
+    "path_to_urdf": "robotmodel.urdf",
+    "turtlebot3_model": "waffle",
+    "max_lin_vel": ".26",
+    "max_ang_vel": "1.82",
+    "lin_vel_step_size": "0.01",
+    "angle_vel_step_size": ".1"
 }

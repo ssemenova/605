@@ -9,10 +9,30 @@ use visodom::core::camera::Intrinsics;
 use visodom::core::track::inverse_compositional as track;
 use visodom::dataset::tum_rgbd;
 use visodom::misc::{helper, interop};
+use std::convert::TryInto;
+use Settings;
 
-pub fn run(args: &[String]) -> Result<(), Box<dyn Error>> {
-    // Check that the arguments are correct.
-    let valid_args = check_args(args)?;
+pub fn run(settings: Settings) -> Result<(), Box<dyn Error>> {
+	// Setup publisher and node
+    let context = rclrs::Context::default();
+    let node = context.create_node("visodom_publisher");
+    let node = match node {
+    	Ok(node) => node,
+    	Err(e) => panic!(String::from("Can't make node")),
+    };
+    let publisher =
+        node.create_publisher::<std_msgs::msg::SimplePose>("pose", rclrs::QOS_PROFILE_DEFAULT);   
+    let publisher = match publisher {
+    	Ok(publisher) => publisher,
+    	Err(e) => panic!(String::from("Can't make publisher")),
+    };
+    
+    // Setup args
+    let args = [
+    	settings.freiberg_type,
+    	settings.path_to_associations
+    ];
+    let valid_args = check_args(&args)?;
 
     // Build a vector containing timestamps and full paths of images.
     let associations = parse_associations(valid_args.associations_file_path)?;
@@ -44,12 +64,41 @@ pub fn run(args: &[String]) -> Result<(), Box<dyn Error>> {
             &depth_map,
             assoc.color_timestamp,
             img,
+
         );
 
-
-        // Print to stdout the frame pose.
         let (timestamp, pose) = tracker.current_frame();
-        println!("{}", (tum_rgbd::Frame { timestamp, pose }).to_string());
+		println!("{}", (tum_rgbd::Frame { timestamp, pose }).to_string());
+		
+		if context.ok() {
+			let mut point = geometry_msgs::msg::Point::default();
+			let mut quaternion = geometry_msgs::msg::Quaternion::default();
+			point.x = pose.translation.vector.x.into();
+			point.y = pose.translation.vector.y.into();
+			point.z = pose.translation.vector.z.into();
+			
+			let pose_quat = pose.rotation.into_inner().coords;
+			quaternion.x = pose_quat.x.into();
+			quaternion.y = pose_quat.y.into();
+			quaternion.z = pose_quat.z.into();
+			quaternion.w = pose_quat.w.into();
+			
+            
+            let items = vec![point.x, point.y, point.z, quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+            let vec_len = items.len();
+
+            let message = std_msgs::msg::SimplePose {
+                point_x: point.x,
+                point_y: point.y,
+                point_z: point.z,
+                quaternion_x: quaternion.x,
+                quaternion_y: quaternion.y,
+                quaternion_z: quaternion.z,
+                quaternion_w: quaternion.w
+            };
+            
+	        publisher.publish(&message);
+		}
     }
 
     Ok(())
