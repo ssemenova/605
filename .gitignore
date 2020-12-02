@@ -7,3 +7,6 @@ MemoryIsolation/target/
 example_system/build/
 example_system/install/
 example_system/log/
+visualizer/log/
+visualizer/build/
+visualizer/install/
