@@ -5,6 +5,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/simple_pose.hpp"
+#include "std_msgs/msg/simple_twist.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 
 using std::placeholders::_1;
 
@@ -14,9 +16,12 @@ public:
   MinimalSubscriber()
   : Node("visualizer")
   {
-    subscription_ = this->create_subscription<std_msgs::msg::SimplePose>(
-      "pose", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
-     
+    pose_sub = this->create_subscription<std_msgs::msg::SimplePose>(
+      "pose", 10, std::bind(&MinimalSubscriber::pose_callback, this, _1));
+    twist_sub = this->create_subscription<std_msgs::msg::SimpleTwist>(
+      "velocity_vector", 10, std::bind(&MinimalSubscriber::twist_callback, this, _1));
+    twist_publisher = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
+
     numFrames = 640;
     numKeyFrames = 10;
 
@@ -54,9 +59,8 @@ private:
   cv::Mat last_frame;
   std::vector<cv::Mat> groundTruth;
   
-  void topic_callback(const std_msgs::msg::SimplePose::SharedPtr msg)
+  void pose_callback(const std_msgs::msg::SimplePose::SharedPtr msg)
   {
-    RCLCPP_INFO(this->get_logger(), "I heard: [%f, %f, %f]", msg->point_x, msg->point_y, msg->point_z);
     if (numCallbackCalled == 0) {
 			last_frame = cv::imread(frame_paths[numCallbackCalled]);
 			cv::cvtColor(last_frame, last_frame, cv::COLOR_BGR2GRAY);
@@ -100,7 +104,22 @@ private:
 		last_frame = curr_frame;
 		numCallbackCalled++;
   }
-  rclcpp::Subscription<std_msgs::msg::SimplePose>::SharedPtr subscription_;
+  rclcpp::Subscription<std_msgs::msg::SimplePose>::SharedPtr pose_sub;
+
+  void twist_callback(const std_msgs::msg::SimpleTwist::SharedPtr msg){
+    RCLCPP_INFO(this->get_logger(), "Twist: [%f, %f, %f]", msg->linear_x, msg->linear_y, msg->linear_z);
+    auto message = geometry_msgs::msg::Twist();
+    message.linear.x = msg->linear_x;
+    message.linear.y = msg->linear_y;
+    message.linear.z = msg->linear_z;
+    message.angular.x = msg->angular_x;
+    message.angular.y = msg->angular_y;
+    message.angular.z = msg->angular_z;
+    twist_publisher->publish(message);
+  }
+  rclcpp::Subscription<std_msgs::msg::SimpleTwist>::SharedPtr twist_sub;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr twist_publisher;
+
   
   std::vector<cv::Mat> loadGroundTruth(std::string filename) 
   {

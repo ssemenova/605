@@ -29,7 +29,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(mc_system REQUIRED COMPONENTS std_msgs)
 
 add_executable(run src/run.cpp)
-ament_target_dependencies(run rclcpp mc_system)
+ament_target_dependencies(run rclcpp mc_system geometry_msgs)
 
 install(TARGETS run 
   DESTINATION lib/${PROJECT_NAME})

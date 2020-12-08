@@ -1,7 +1,8 @@
 use std::marker::PhantomData;
 use std::thread::{JoinHandle, spawn};
 use std::sync::mpsc::{Sender, Receiver, channel};
-use crate::allocator::{set_group, die};
+use crate::allocator::set_group;
+use libc;
 
 type Thunk = fn(Vec<Sender<i32>>, Vec<Receiver<i32>>) -> ();
 
@@ -82,7 +83,23 @@ impl<G: GroupTag> ThreadGroup<G>
         // ...
         let s = senders.into_iter().map(move |e| e.sender).collect();
         let r = receivers.into_iter().map(move |e| e.receiver).collect();
-        let join = spawn(move || { set_group(G::get_tag()); let ret = f(s, r); die(); ret });
+        let join = spawn(move || { 
+            set_group(G::get_tag()); 
+            unsafe {
+                let pid = libc::pthread_self();
+                let policy = libc::SCHED_FIFO;
+
+                let max = libc::sched_get_priority_max(policy);
+                let min = libc::sched_get_priority_min(policy);
+                println!("prio in [{}, {}]", min, max);
+
+                let prio = libc::sched_param { sched_priority: min };
+
+                let err = libc::pthread_setschedparam(pid, policy, &prio);
+                assert!(err == 0, "err = {}", err);
+            }
+            let ret = f(s, r); ret 
+        });
         self.threads.push(join);
         ()
     }
