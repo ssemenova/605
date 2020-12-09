@@ -41,25 +41,21 @@ pub fn teleop_entrypoint(settings: Settings) {
     	let keys = device_state.get_keys();
     	
     	if keys.contains(&Keycode::W) {
-			println!("Captured w");
     		target_linear_velocity = set_velocity(
     			target_linear_velocity + lin_vel_step_size,
     			max_lin_vel
     		)
     	} else if keys.contains(&Keycode::A) {
-			println!("Captured a");
     		target_angular_velocity = set_velocity(
     			target_angular_velocity + ang_vel_step_size,
     			max_ang_vel
     		)
     	} else if keys.contains(&Keycode::D) {
-			println!("Captured d");
     		target_angular_velocity = set_velocity(
     			target_angular_velocity - ang_vel_step_size,
     			max_ang_vel
     		)
     	} else if keys.contains(&Keycode::X) {
-			println!("Captured x");
     		target_linear_velocity = set_velocity(
     			target_linear_velocity - lin_vel_step_size,
     			max_lin_vel
@@ -68,17 +64,19 @@ pub fn teleop_entrypoint(settings: Settings) {
 		
 		println!("target linear velocity {}", target_linear_velocity);
 
-        control_linear_velocity = make_simple_profile(
-        	control_linear_velocity,
-        	target_linear_velocity,
-        	lin_vel_step_size / 2.0
-    	);
-        control_angular_velocity = make_simple_profile(
-        	control_angular_velocity,
-        	target_angular_velocity,
-        	ang_vel_step_size / 2.0
-    	);
-		println!("control linear velocity {}", control_linear_velocity);
+		control_linear_velocity = target_linear_velocity;
+		// make_simple_profile(
+        // 	control_linear_velocity,
+        // 	target_linear_velocity,
+        // 	lin_vel_step_size / 2.0
+    	// );
+		control_angular_velocity = target_angular_velocity;
+		// make_simple_profile(
+        // 	control_angular_velocity,
+        // 	target_angular_velocity,
+        // 	ang_vel_step_size / 2.0
+    	// );
+		// println!("control linear velocity {}", control_linear_velocity);
 
 		linear.x = control_linear_velocity;
 		angular.z = control_angular_velocity;

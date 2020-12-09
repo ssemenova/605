@@ -110,7 +110,7 @@ fn run_publisher(_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>) {
         publisher.publish(&message);
         
         publish_count += 1;
-        std::thread::sleep(std::time::Duration::from_millis(1500));
+        std::thread::sleep(std::time::Duration::from_millis(5500));
     }
 }
 
@@ -132,6 +132,7 @@ fn run_publisher(_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>) {
         "start_planner",
         rclrs::QOS_PROFILE_DEFAULT,
         move |msg: &std_msgs::msg::String| {
+            println!("Planner thread starting");
             minimal_planner::main(config.path_to_urdf.clone());
             num_messages += 1;
         },

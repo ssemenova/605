@@ -221,14 +221,14 @@ impl Tracker {
             })
             .sum();
         let optical_flow = optical_flow_sum / _z_candidates.len() as Float;
-        eprintln!("Optical_flow: {}", optical_flow);
+        // ANODIZE REMOVED LOGGING: eprintln!("Optical_flow: {}", optical_flow);
 
         let change_keyframe = optical_flow >= 1.0;
 
         // In case of keyframe change, update all keyframe info with current frame.
         if change_keyframe {
             let delta_time = depth_time - self.state.keyframe_depth_timestamp;
-            eprintln!("Changing keyframe after: {} seconds", delta_time);
+            // ANODIZE REMOVED LOGGING: eprintln!("Changing keyframe after: {} seconds", delta_time);
             self.state.keyframe_multires_data = precompute_multires_data(
                 &self.config,
                 depth_map,

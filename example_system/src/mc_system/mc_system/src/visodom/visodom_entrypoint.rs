@@ -68,7 +68,7 @@ pub fn run(settings: Settings) -> Result<(), Box<dyn Error>> {
         );
 
         let (timestamp, pose) = tracker.current_frame();
-		println!("{}", (tum_rgbd::Frame { timestamp, pose }).to_string());
+		// ANODIZE REMOVED LOGGING:println!("{}", (tum_rgbd::Frame { timestamp, pose }).to_string());
 		
 		if context.ok() {
 			let mut point = geometry_msgs::msg::Point::default();
