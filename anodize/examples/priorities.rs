@@ -31,23 +31,26 @@ impl GroupTag for GroupThree {
 fn main() {
     let mut group_one = ThreadGroup::<GroupOne>::new();
     let mut group_two = ThreadGroup::<GroupTwo>::new();
-    let mut group_three = ThreadGroup::<GrouThree>::new();
+    let mut group_three = ThreadGroup::<GroupThree>::new();
     
     let (t1, r1) = group_one.channel::<i32>();
     let (t2, r2) = group_two.channel::<i32>();
     let (t3, r3) = group_three.channel::<i32>();
 
-    println!("Spawning group 3");
-    group_three.spawn(produce_three, vec!(t3), vec!());
-    group_three.spawn(consume, vec!(), vec!(r3));
+    println!("Spawning group 1");
+    group_one.spawn(produce_one, vec!(t1), vec!());
+    group_one.spawn(consume, vec!(), vec!(r1));
     sleep(Duration::from_secs(2));
     println!("Spawning group 2");
     group_two.spawn(produce_two, vec!(t2), vec!());
     group_two.spawn(consume, vec!(), vec!(r2));
     sleep(Duration::from_secs(2));
-    println!("Spawning group 1");
-    group_one.spawn(produce_one, vec!(t1), vec!());
-    group_one.spawn(consume, vec!(), vec!(r1));
+    println!("Spawning group 3");
+    group_three.spawn(produce_three, vec!(t3), vec!());
+    group_three.spawn(consume, vec!(), vec!(r3));
+    sleep(Duration::from_secs(2));
+
+
 
 }
 
@@ -85,6 +88,11 @@ fn consume(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
     loop {
         let i = rx.recv().unwrap();
         println!("Consuming {}", i);
-        sleep(Duration::from_millis(250));
+        // sleep(Duration::from_millis(250));
+        let mut a: u64 = 0;
+        for i in 1..999999 {
+            a += i;
+        }
+        //println!("{}", a);
     }
 }
