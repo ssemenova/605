@@ -5,11 +5,13 @@ extern crate anodize;
 
 use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Receiver};
 
 
 struct GroupA;
-impl GroupTag for GroupA { }
+impl GroupTag for GroupA { 
+    fn get_tag() -> u64 { 0x41 }
+}
 
 
 fn main() {
@@ -24,7 +26,7 @@ fn good_closure() {
 
     // This closure does not capture any variables from the scope, so it is fine to use with TaggedThread.
     let mut _x = 5;
-    let good_closure = |_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>| { let mut _y = 0; _y += 1 };
+    let good_closure = |_s: Vec<SyncSender<i32>>, _r: Vec<Receiver<i32>>| { let mut _y = 0; _y += 1 };
 
 
     let group_a_t1 = TaggedThread::new(good_closure);
@@ -37,7 +39,7 @@ fn bad_closure() {
 
     // This closure DOES capture the variable `x` from the scope, so it will not work with TaggedThread.
     let mut x = 5;
-    let _bad_closure = |_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>| { x += 1 };
+    let _bad_closure = |_s: Vec<SyncSender<i32>>, _r: Vec<Receiver<i32>>| { x += 1 };
 
 
     /*

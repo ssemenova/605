@@ -2,7 +2,7 @@ extern crate anodize;
 
 use crate::anodize::thread_groups::{GroupTag, ThreadGroup};
 use crate::anodize::allocator::{BoundedAllocator, add_bound, get_allocated, die, get_bound};
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Receiver};
 
 #[global_allocator]
 static A: BoundedAllocator = BoundedAllocator::new();
@@ -12,7 +12,7 @@ impl GroupTag for GroupA {
     fn get_tag() -> u64 { 0x41 }
 }
 
-fn work(_s: Vec<Sender<i32>>, _r: Vec<Receiver<i32>>) {
+fn work(_s: Vec<SyncSender<i32>>, _r: Vec<Receiver<i32>>) {
     let id = GroupA::get_tag();
     let mut v: Vec<i32> = vec![];
     for i in 1..256 {

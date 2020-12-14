@@ -3,9 +3,9 @@ Simple example of ThreadGroups and intra-group communication through channels.
 */
 extern crate anodize;
 
-use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup};
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Receiver};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -58,7 +58,7 @@ fn main() {
 }
 
 
-fn produce(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn produce(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let tx = s.get(0).unwrap();
     let _ = r;
 
@@ -71,7 +71,7 @@ fn produce(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
 }
 
 
-fn consume(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn consume(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let _ = s;
     let rx = r.get(0).unwrap();
 

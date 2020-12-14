@@ -1,17 +1,17 @@
 use std::marker::PhantomData;
 use std::thread::{JoinHandle, spawn};
-use std::sync::mpsc::{Sender, Receiver, channel};
+use std::sync::mpsc::{SyncSender, Receiver, sync_channel};
 use crate::allocator::set_group;
 use libc;
 
-type Thunk = fn(Vec<Sender<i32>>, Vec<Receiver<i32>>) -> ();
+type Thunk = fn(Vec<SyncSender<i32>>, Vec<Receiver<i32>>) -> ();
 
 pub trait GroupTag { fn get_tag() -> u64; fn get_prio() -> i32 { return 1; } }
 trait GroupMember<G: GroupTag> { }
 
 #[derive(Clone)]
 pub struct IntragroupSender<V, G: GroupTag> {
-    sender: Sender<V>,
+    sender: SyncSender<V>,
     marker: PhantomData<G>,
 }
 
@@ -79,7 +79,7 @@ impl<G: GroupTag> ThreadGroup<G>
 
     pub fn channel<V>(&self) -> (IntragroupSender<V, G>, IntragroupReceiver<V, G>)
     {
-        let (s, r) = channel ();
+        let (s, r) = sync_channel(0);
         (IntragroupSender { sender: s, marker: PhantomData }, IntragroupReceiver { receiver: r, marker: PhantomData })
     }
 

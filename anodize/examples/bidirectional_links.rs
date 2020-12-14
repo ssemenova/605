@@ -6,13 +6,15 @@ extern crate anodize;
 
 use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Receiver};
 use std::thread::sleep;
 use std::time::Duration;
 
 
 struct GroupA;
-impl GroupTag for GroupA { }
+impl GroupTag for GroupA { 
+    fn get_tag() -> u64 { 0x41 }
+}
 
 
 fn main() {
@@ -35,7 +37,7 @@ fn main() {
 }
 
 
-fn thread1_function(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn thread1_function(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let tx = s.get(0).unwrap();
     let rx = r.get(0).unwrap();
 
@@ -53,7 +55,7 @@ fn thread1_function(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
 }
 
 
-fn thread2_function(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn thread2_function(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let tx = s.get(0).unwrap();
     let rx = r.get(0).unwrap();
 

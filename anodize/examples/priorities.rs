@@ -5,7 +5,7 @@ extern crate anodize;
 
 use crate::anodize::thread_groups::{GroupTag, ThreadGroup, set_prio};
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Receiver};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -57,7 +57,7 @@ fn main() {
 
 }
 
-fn work_one(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn work_one(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let _ = s;
     let _ = r;
 
@@ -70,7 +70,7 @@ fn work_one(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
     }
 }
 
-fn work_two(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn work_two(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let _ = s;
     let _ = r;
 
@@ -83,7 +83,7 @@ fn work_two(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
     }
 }
 
-fn work_three(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn work_three(s: Vec<SyncSender<i32>>, r: Vec<Receiver<i32>>) {
     let _ = s;
     let _ = r;
 
