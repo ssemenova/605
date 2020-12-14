@@ -55,6 +55,22 @@ impl<G: GroupTag> TaggedThread<G> {
     }
 }
 
+pub fn set_prio(p: i32) {
+    unsafe {
+        let pid = libc::pthread_self();
+        let policy = libc::SCHED_FIFO;
+        let max = libc::sched_get_priority_max(policy);
+        let min = libc::sched_get_priority_min(policy);
+        //println!("prio range =  [{}, {}]", min, max);
+        let prio = p;
+        assert!(prio >= min, "prio < min");
+        assert!(prio <= max, "prio > max");
+        let param = libc::sched_param { sched_priority: prio };
+        let err = libc::pthread_setschedparam(pid, policy, &param);
+        assert!(err == 0, "err = {}", err);
+    }
+}
+
 impl<G: GroupTag> ThreadGroup<G> 
 {
     pub fn new() -> ThreadGroup<G> {
@@ -85,19 +101,7 @@ impl<G: GroupTag> ThreadGroup<G>
         let r = receivers.into_iter().map(move |e| e.receiver).collect();
         let join = spawn(move || { 
             set_group(G::get_tag()); 
-            unsafe {
-                let pid = libc::pthread_self();
-                let policy = libc::SCHED_FIFO;
-                let max = libc::sched_get_priority_max(policy);
-                let min = libc::sched_get_priority_min(policy);
-                println!("prio range =  [{}, {}]", min, max);
-                let prio = G::get_prio();
-                assert!(prio >= min, "prio < min");
-                assert!(prio <= max, "prio > max");
-                let param = libc::sched_param { sched_priority: prio };
-                let err = libc::pthread_setschedparam(pid, policy, &param);
-                assert!(err == 0, "err = {}", err);
-            }
+            set_prio(G::get_prio());
             let ret = f(s, r); ret 
         });
         self.threads.push(join);

@@ -3,7 +3,7 @@ Commented-out examples of code that breaks the library and is checked at compile
 */
 extern crate anodize;
 
-use crate::anodize::thread_groups::{GroupTag, ThreadGroup, TaggedThread};
+use crate::anodize::thread_groups::{GroupTag, ThreadGroup, set_prio};
 
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread::sleep;
@@ -29,70 +29,69 @@ impl GroupTag for GroupThree {
 }
 
 fn main() {
+    set_prio(99);
+
     let mut group_one = ThreadGroup::<GroupOne>::new();
     let mut group_two = ThreadGroup::<GroupTwo>::new();
     let mut group_three = ThreadGroup::<GroupThree>::new();
-    
-    let (t1, r1) = group_one.channel::<i32>();
-    let (t2, r2) = group_two.channel::<i32>();
-    let (t3, r3) = group_three.channel::<i32>();
 
     println!("Spawning group 1");
-    group_one.spawn(produce_one, vec!(t1), vec!());
-    group_one.spawn(consume, vec!(), vec!(r1));
-    sleep(Duration::from_secs(2));
-    println!("Spawning group 2");
-    group_two.spawn(produce_two, vec!(t2), vec!());
-    group_two.spawn(consume, vec!(), vec!(r2));
-    sleep(Duration::from_secs(2));
+    // group_one.spawn(work_one, vec!(), vec!());
+    // sleep(Duration::from_secs(1));
+    // println!("Spawning group 2");
+    // group_two.spawn(work_two, vec!(), vec!());
+    // sleep(Duration::from_secs(1));
+    // println!("Spawning group 3");
+    // group_three.spawn(work_three, vec!(), vec!());
+    // sleep(Duration::from_secs(1));
+    
     println!("Spawning group 3");
-    group_three.spawn(produce_three, vec!(t3), vec!());
-    group_three.spawn(consume, vec!(), vec!(r3));
-    sleep(Duration::from_secs(2));
-
-
+    group_three.spawn(work_three, vec!(), vec!());
+    sleep(Duration::from_secs(1));
+    println!("Spawning group 2");
+    group_two.spawn(work_two, vec!(), vec!());
+    sleep(Duration::from_secs(1));
+    println!("Spawning group 1");
+    group_one.spawn(work_one, vec!(), vec!());
+    sleep(Duration::from_secs(1));
 
 }
 
-fn produce_one(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
-    let tx = s.get(0).unwrap();
-    let _ = r;
-
-    loop {
-        let _ = tx.send(1);
-    }
-}
-
-fn produce_two(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
-    let tx = s.get(0).unwrap();
-    let _ = r;
-
-    loop {
-        let _ = tx.send(2);
-    }
-}
-
-fn produce_three(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
-    let tx = s.get(0).unwrap();
-    let _ = r;
-
-    loop {
-        let _ = tx.send(3);
-    }
-}
-
-fn consume(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+fn work_one(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
     let _ = s;
-    let rx = r.get(0).unwrap();
+    let _ = r;
 
     loop {
-        let i = rx.recv().unwrap();
-        println!("Consuming {}", i);
-        // sleep(Duration::from_millis(250));
-        let mut a: u64 = 0;
+        println!("Thread {}", 1);
+        let mut _a: u64 = 0;
         for i in 1..999999 {
-            a += i;
+            _a += i;
         }
-        //println!("{}", a);
+    }
+}
+
+fn work_two(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+    let _ = s;
+    let _ = r;
+
+    loop {
+        println!("Thread {}", 2);
+        let mut _a: u64 = 0;
+        for i in 1..999999 {
+            _a += i;
+        }
+    }
+}
+
+fn work_three(s: Vec<Sender<i32>>, r: Vec<Receiver<i32>>) {
+    let _ = s;
+    let _ = r;
+
+    loop {
+        println!("Thread {}", 3);
+        let mut _a: u64 = 0;
+        for i in 1..999999 {
+            _a += i;
+        }
     }
 }
