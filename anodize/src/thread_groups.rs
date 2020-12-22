@@ -1,7 +1,9 @@
 use std::marker::PhantomData;
 use std::thread::{JoinHandle, spawn};
 use std::sync::mpsc::{SyncSender, Receiver, sync_channel};
-use crate::allocator::set_group;
+use std::sync::{Arc, Mutex};
+use crate::allocator::{run_for_group, set_group};
+use std::panic;
 use libc;
 
 type Thunk = fn(Vec<SyncSender<i32>>, Vec<Receiver<i32>>) -> ();
@@ -26,6 +28,7 @@ impl<V, G: GroupTag> GroupMember<G> for IntragroupReceiver<V, G> { }
 
 pub struct ThreadGroup<G: GroupTag> {
     threads: Vec<JoinHandle<()>>,
+    pthreads: Arc<Mutex<Vec<libc::pthread_t>>>,
     marker: PhantomData<G>,
 }
 
@@ -74,7 +77,11 @@ pub fn set_prio(p: i32) {
 impl<G: GroupTag> ThreadGroup<G> 
 {
     pub fn new() -> ThreadGroup<G> {
-        ThreadGroup { threads: vec![], marker: PhantomData }
+        ThreadGroup { 
+            threads: vec![],
+            pthreads: run_for_group(G::get_tag(), || { Arc::new(Mutex::new(vec![])) }),
+            marker: PhantomData
+        }
     }
 
     pub fn channel<V>(&self) -> (IntragroupSender<V, G>, IntragroupReceiver<V, G>)
@@ -99,10 +106,40 @@ impl<G: GroupTag> ThreadGroup<G>
         // ...
         let s = senders.into_iter().map(move |e| e.sender).collect();
         let r = receivers.into_iter().map(move |e| e.receiver).collect();
+        let pt_arc = self.pthreads.clone();
         let join = spawn(move || { 
-            set_group(G::get_tag()); 
+            set_group(G::get_tag());
+            {
+                let mut pt_vec = pt_arc.lock().unwrap();
+                pt_vec.push(unsafe { libc::pthread_self() });
+            }
             set_prio(G::get_prio());
-            let ret = f(s, r); ret 
+            
+            // Note: MPSC channels are not actually UnwindSafe!
+            // We here instead assert we will never observe them after a panic
+            let result = panic::catch_unwind(panic::AssertUnwindSafe(|| { f(s, r) }));
+            
+            match result {
+                Err(err) => {
+                    // Tread carefully, we're panicking
+                    // Specifically MPSC channels may be in an invalid state
+
+                    // Kill all other threads in group
+                    {
+                        let pt_vec = pt_arc.lock().unwrap();
+                        for _pt in pt_vec.iter() {
+                            // Currently we don't actually terminate
+                            // Avoids issue with JoinHandle corruption
+                            // unsafe {
+                            //      libc::pthread_cancel(*_pt);
+                            // }
+                        }
+                    }
+
+                    panic::resume_unwind(err)
+                },
+                Ok(ret) => ret
+            }
         });
         self.threads.push(join);
         ()

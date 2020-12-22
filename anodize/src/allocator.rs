@@ -41,6 +41,23 @@ pub fn get_group() -> Option<u64> {
     })
 }
 
+// Signals may break this
+// The thread must not execute other code during this function
+pub fn run_for_group<F, T>(group: u64, f: F) -> T
+where F: FnOnce () -> T {
+    let my_group = get_group();
+
+    set_group(group);
+    let ret = f();
+
+    // Raw set because my_group could be None
+    GROUP.with(|cell| { 
+        cell.set(my_group)
+    });
+
+    ret
+}
+
 pub fn die() {
     IS_DEAD.with(|cell| { 
         cell.set(true)
